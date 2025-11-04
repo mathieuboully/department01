@@ -30,7 +30,11 @@ library(RColorBrewer)
 app_name = "Analyse du territoire de l’Ain"
 last_update = file.info(file.path(getwd(), "app.R"))$atime
 
-.wdPath = dirname(rstudioapi::getSourceEditorContext()$path)
+if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
+  .wdPath <- dirname(rstudioapi::getSourceEditorContext()$path)
+} else {
+  .wdPath <- getwd()
+}
 setwd(.wdPath)
 
 # if (!is.null(rstudioapi::getActiveProject())) {
