@@ -30,7 +30,8 @@ library(RColorBrewer)
 app_name = "Analyse du territoire de l’Ain"
 last_update = file.info(file.path(getwd(), "app.R"))$atime
 
-if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
+if (requireNamespace("rstudioapi", quietly = TRUE) &&
+    rstudioapi::isAvailable()) {
   .wdPath <- dirname(rstudioapi::getSourceEditorContext()$path)
 } else {
   .wdPath <- getwd()
@@ -61,7 +62,7 @@ markers = leaflet::iconList(logo_sncf = leaflet::makeIcon(iconUrl = "./www/logo_
 #   dec = "."
 # )
 # bicycle_crash_clean = bicycle_crash %>%
-#   filter(dep %in% "01") %>%
+#   filter(dep %in% "01" & long != 0) %>%
 #   mutate(
 #     date = as.Date(date, format = "%Y-%m-%d"),
 #     date_clean = format(date, "%A %d %B %Y"),
@@ -114,7 +115,7 @@ stations_clean = readRDS(file = file.path(path_data_output, "stations.rds"))
 #   sep = ",",
 #   dec = "."
 # )
-# 
+#
 # socio_clean = socio %>%
 #   mutate(
 #     epsg = sub(".*CRS(\\d+)RES.*", "\\1", Idcar_1km),
@@ -127,9 +128,60 @@ stations_clean = readRDS(file = file.path(path_data_output, "stations.rds"))
 #   mutate(lon = st_coordinates(.)[, 1], lat = st_coordinates(.)[, 2]) %>%
 #   st_drop_geometry() %>%
 #   filter(substr(lcog_geo, 1, 2) == "01")
-# 
+#
 # saveRDS(socio_clean, file = file.path(path_data_output, "socio.rds"))
 socio_clean = readRDS(file = file.path(path_data_output, "socio.rds"))
+
+# Rent
+# rent_house = read.csv2(
+#   file.path(path_data_raw, "pred-mai-mef-dhup.csv"),
+#   header = T,
+#   dec = ",",
+#   encoding = "UTF-8"
+# ) %>%
+#   filter(DEP %in% "01")
+# 
+# rent_house = read.csv2(
+#   file.path(path_data_raw, "pred-mai-mef-dhup.csv"),
+#   header = T,
+#   dec = ",",
+#   encoding = "UTF-8"
+# ) %>%
+#   filter(DEP %in% "01")
+# 
+# rent_app3 = read.csv2(
+#   file.path(path_data_raw, "pred-app3-mef-dhup.csv"),
+#   header = T,
+#   dec = ",",
+#   encoding = "UTF-8"
+# ) %>%
+#   filter(DEP %in% "01")
+# 
+# rent_app12 = read.csv2(
+#   file.path(path_data_raw, "pred-app12-mef-dhup.csv"),
+#   header = T,
+#   dec = ",",
+#   encoding = "UTF-8"
+# ) %>%
+#   filter(DEP %in% "01")
+# 
+# saveRDS(list(mai = rent_house,
+#              app3 = rent_app3,
+#              app12 = rent_app12), file = file.path(path_data_output, "rent.rds"))
+rent_ls = readRDS(file = file.path(path_data_output, "rent.rds"))
+
+# Location INSEE
+# loc_insee = read.csv2(
+#   file.path(path_data_raw, "20230823-communes-departement-region.csv"),
+#   header = T,
+#   sep = ",",
+#   dec = ".",
+#   encoding = "UTF-8"
+# ) %>%
+#   filter(nom_departement %in% "Ain")
+# 
+# saveRDS(loc_insee, file = file.path(path_data_output, "loc_insee.rds"))
+loc_insee = readRDS(file = file.path(path_data_output, "loc_insee.rds"))
 
 ui = page_navbar(
   title = app_name,
@@ -148,9 +200,12 @@ ui = page_navbar(
   ),
   sidebar = sidebar(
     nav_panel(title = ""),
-    accordion(
-      open = F,
-      accordion_panel("Gares et accessibilité", icon = bsicons::bs_icon("train-front-fill"))
+    # accordion(
+    #   open = F,
+    #   accordion_panel("Gares et accessibilité", icon = bsicons::bs_icon("train-front-fill"))
+    # ),
+    tags$p(
+      "Cette application interactive permet d’analyser l’accessibilité aux gares et les accidents de vélo dans le département de l’Ain en les reliant à des variables socio-démographiques telles que la densité de population."
     ),
     tags$a(
       tags$img(
@@ -182,7 +237,7 @@ ui = page_navbar(
             selectInput(
               inputId = "iso_select",
               label = "Couvertures des gares",
-              c("10 minutes à vélo", "20 minutes à vélo"),
+              c("10 minutes à vélo", "20 minutes à vélo", "10 minutes en voiture", "20 minutes en voiture"),
               multiple = F,
               selected = "10 minutes à vélo"
             ),
@@ -225,19 +280,12 @@ ui = page_navbar(
       ),
       card(
         full_screen = TRUE,
-        plotly::plotlyOutput("passengers_evolution"),
-        card_footer(popover(
-          a("En savoir plus", href = "#"),
-          markdown(
-            "Ce jeu de données représente la fréquentation annuelle de l’ensemble des 3000 gares voyageurs de 2015 à 2024. <br>Ces informations sont issues d’une part, des données de billetterie pour le trafic national et régional hors Ile-de-France et d’autre part, d’une extrapolation pour le trafic régional Ile-de-France à partir des comptages effectués tous les 3 à 4 ans et publiés par ailleurs en Open Data."
-          )
-        ))
+        plotly::plotlyOutput("passengers_evolution")
       ),
       card(
         full_screen = TRUE,
         leafletOutput("frequentation_map"),
-        card_footer(
-          "Fréquentations des gares en 2024")
+        card_footer("Fréquentations des gares en 2024")
       ),
       col_widths = c(12, 4, 4, 4, 6, 6)
     )
@@ -256,6 +304,47 @@ ui = page_navbar(
           )
         ))
       ),
+      card(
+        dataTableOutput("table_crash"),
+        card_footer(
+          tags$h5('Jours de la semaine les plus à risque')
+        )
+      ),
+      col_widths = c(12, 12)
+    )
+  ),
+  nav_panel(
+    "Loyers",
+    icon = bsicons::bs_icon("house-fill"),
+    layout_columns(
+      card(
+        layout_sidebar(
+          fillable = TRUE,
+          border = T,
+          sidebar = sidebar(
+            position = "right",
+            width = 300,
+            open = T,
+            selectInput(
+              inputId = "sel_rent",
+              label = "Type de location",
+              c("Maison individuelle", "Appartement T1-T2", "Appartement T3+"),
+              multiple = F,
+              selected = "Maison individuelle"
+            )
+          ),
+          leafletOutput("house_map"),
+          card_footer(
+            tags$h5("Loyers par type de logement"),
+            popover(
+            a("En savoir plus", href = "#"),
+            markdown(
+              "Cette carte interactive présente la répartition des loyers à l’échelle communale pour le trimestre 2023, selon le type de bien : maisons individuelles, appartements T1, T2 et T3+.<br> 
+Les données proviennent de l’<a href='https://www.data.gouv.fr/datasets/communes-de-france-base-des-codes-postaux/', target='_blank'>Open Data gouvernemental</a> sur les loyers d’annonce par commune."
+            )
+          ))
+        )
+      ),
       col_widths = c(12)
     )
   ),
@@ -265,20 +354,7 @@ ui = page_navbar(
     fluidRow(
       column(
         width = 6,
-        h2("Bienvenue sur l'application !"),
-        p(
-          "Cette application interactive permet d’explorer et de comprendre le territoire de l’Ain à travers un maillage détaillé combinant données socio-démographiques, infrastructures de transport et indicateurs de mobilité."
-        ),
-        br(),
-        hr(),
-        h3("Fonctionnalités principales"),
-        tags$ul(
-          tags$li("Carte interactive centrée sur l’Ain"),
-          tags$li("Visualisation de données socio-démographiques"),
-          tags$li("Analyse des infrastructures de transport")
-        ),
-        hr(),
-        h3("Département de lAin"),
+        h3("Département de l'Ain"),
         tags$p(
           tags$a(href = "https://www.ain.fr/", "Le département de l’Ain", target = "_blank"),
           "est situé dans la région Auvergne-Rhône-Alpes, à l’est de la France. Il couvre une superficie d’environ 5 762 km² et compte près de 655 000 habitants.
@@ -300,6 +376,13 @@ L’Ain constitue un territoire à la fois naturellement préservé et économiq
               tags$a(
                 href = "https://www.data.gouv.fr/datasets/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2023/",
                 "Loyers par commune 2018-2023",
+                target = "_blank"
+              )
+            ),
+            tags$li(
+              tags$a(
+                href = "https://www.data.gouv.fr/datasets/communes-de-france-base-des-codes-postaux/",
+                "Communes de france",
                 target = "_blank"
               )
             ),
@@ -376,7 +459,7 @@ L’Ain constitue un territoire à la fois naturellement préservé et économiq
     " ∙ Cette application a été crée avec",
     tags$a("Shiny", href = "https://shiny.posit.co/", target = "_blank"),
     " ∙ ",
-    tags$a("Dépôt GitHub", href = "https://github.com/mathieuboully", target = "_blank")
+    tags$a("Code source GitHub", href = "https://github.com/mathieuboully/departement01", target = "_blank")
   )
 )
 
@@ -402,6 +485,10 @@ server = function(input, output, session) {
       iso_station = readRDS(file = file.path(path_data_output, "isochrone_station_bike_600.rds"))
     else if (input$iso_select %in% "20 minutes à vélo") {
       iso_station = readRDS(file = file.path(path_data_output, "isochrone_station_bike_1200.rds"))
+    } else if (input$iso_select %in% "10 minutes en voiture") {
+      iso_station = readRDS(file = file.path(path_data_output, "isochrone_station_car_600.rds"))
+    } else if (input$iso_select %in% "20 minutes en voiture") {
+      iso_station = readRDS(file = file.path(path_data_output, "isochrone_station_car_1200.rds"))
     } else {
       return(NULL)
     }
@@ -422,10 +509,10 @@ server = function(input, output, session) {
         zoom = 9
       ) %>%
       setMaxBounds(
-        lng1 = 4.9,
-        lat1 = 45.95,
-        lng2 = 5.9,
-        lat2 = 46.5
+        lng1 = 4.7,   # limite ouest
+        lat1 = 45.8,  # limite sud
+        lng2 = 6.7,   # limite est
+        lat2 = 46.5   # limite nord
       )
     iso_ls = selected_iso()
     for (i in iso_ls) {
@@ -436,7 +523,7 @@ server = function(input, output, session) {
           dashArray = "6",
           color = "#ffffff",
           fillColor = "#ffffff",
-          fillOpacity = 0.5
+          fillOpacity = 0.3
         ) %>%
         addMarkers(
           clusterId = "station",
@@ -468,7 +555,7 @@ server = function(input, output, session) {
       var = "Log_soc"
     }
     
-    pal <- colorNumeric("OrRd", domain = socio_clean[[var]], na.color = "red")
+    pal <- colorNumeric("YlOrRd", domain = socio_clean[[var]], na.color = "red")
     gradient_colors <- pal(seq(
       min(socio_clean[[var]], na.rm = TRUE),
       max(socio_clean[[var]], na.rm = TRUE),
@@ -480,10 +567,10 @@ server = function(input, output, session) {
         data = socio_clean,
         lng = ~ lon,
         lat = ~ lat,
-        intensity = ~ eval(var),
+        intensity = socio_clean[[var]] / max(socio_clean[[var]], na.rm = TRUE),
         blur = 10,
-        radius = 5,
-        gradient = gradient_colors
+        gradient = gradient_colors,
+        radius = 30
       ) %>%
       addLegend(
         "bottomright",
@@ -491,6 +578,7 @@ server = function(input, output, session) {
         pal = pal,
         title = input$socio_var_select
       )
+    
     return(map)
   })
   
@@ -499,10 +587,9 @@ server = function(input, output, session) {
       scales::rescale(x, to = c(5, 20))
     }
     
-    pal <- colorNumeric(
-      palette = "YlOrRd",  # tu peux changer
-      domain = stations_clean$Total.Voyageurs.2024
-    )
+    pal <- colorNumeric(palette = "YlOrRd",
+                        # tu peux changer
+                        domain = stations_clean$Total.Voyageurs.2024)
     
     stations_clean$freq_label = label_number(big.mark = " ", decimal.mark = ",")(stations_clean$Total.Voyageurs.2024)
     
@@ -516,30 +603,43 @@ server = function(input, output, session) {
         zoom = 9
       ) %>%
       setMaxBounds(
-        lng1 = 4.9,
-        lat1 = 45.95,
-        lng2 = 5.9,
-        lat2 = 46.5
+        lng1 = 4.7,   # limite ouest
+        lat1 = 45.8,  # limite sud
+        lng2 = 6.7,   # limite est
+        lat2 = 46.5   # limite nord
       ) %>%
       addCircleMarkers(
         data = stations_clean,
-        lng = ~lon,
-        lat = ~lat,
-        color = ~pal(Total.Voyageurs.2024),
-        radius = ~radius_scale(Total.Voyageurs.2024),
+        lng = ~ lon,
+        lat = ~ lat,
+        color = ~ pal(Total.Voyageurs.2024),
+        radius = ~ radius_scale(Total.Voyageurs.2024),
         fillOpacity = 0.7,
         stroke = 10,
-        label = ~paste0("<strong>", LIBELLE, "</strong><br>",
-                        "Voyageurs en 2024 : ", Total.Voyageurs.2024) %>%
+        label = ~ paste0(
+          "<strong>",
+          LIBELLE,
+          "</strong><br>",
+          "Voyageurs en 2024 : ",
+          label_number(big.mark = " ", decimal.mark = ",")(
+            stations_clean$Total.Voyageurs.2024
+          )
+        ) %>%
           lapply(htmltools::HTML),
         labelOptions = labelOptions(
           style = list("font-weight" = "normal", padding = "3px 8px"),
           textsize = "11px",
           direction = "auto"
         )
+      ) %>%
+      addLegend(
+        "bottomright",
+        values = stations_clean$Total.Voyageurs.2024,
+        pal = pal,
+        title = "Nombre de voyageurs"
       )
     
-  map  
+    map
   })
   
   prop_cov_text_react = reactive({
@@ -564,15 +664,18 @@ server = function(input, output, session) {
   output$pop_cov_box = renderText ({
     value_react = prop_cov_text_react()
     
-    return(value_react)  
+    return(paste0(value_react, ' (',input$iso_select, ')'))
   })
   
   output$passengers_evolution = renderPlotly({
     df <- stations_clean %>%
       pivot_longer(
-        cols = starts_with("Total.Voyageurs."),    # toutes les colonnes d'année
-        names_to = "Year",         # nom de la nouvelle colonne pour les années
-        names_prefix = "Total.Voyageurs.",         # enlever le "X" devant l'année
+        cols = starts_with("Total.Voyageurs."),
+        # toutes les colonnes d'année
+        names_to = "Year",
+        # nom de la nouvelle colonne pour les années
+        names_prefix = "Total.Voyageurs.",
+        # enlever le "X" devant l'année
         values_to = "Ind"  # nom de la colonne pour les valeurs
       ) %>%
       filter(!grepl("Non\\.voyageurs", Year)) %>%
@@ -582,8 +685,7 @@ server = function(input, output, session) {
       filter(Year == 2024) %>%
       arrange(desc(Ind)) %>%
       slice_head(n = 10) %>%
-      left_join(df,
-                by = "LIBELLE")
+      left_join(df, by = "LIBELLE")
     
     plot_ly(
       df_top_10,
@@ -596,7 +698,9 @@ server = function(input, output, session) {
       text = ~ as.factor(LIBELLE),
       hovertemplate = paste(
         "%{text}<br>",
-        "%{yaxis.title.text}: ", label_number(big.mark = " ", decimal.mark = ",")(df_top_10$Ind.y),"<br>",
+        "%{yaxis.title.text}: ",
+        label_number(big.mark = " ", decimal.mark = ",")(df_top_10$Ind.y),
+        "<br>",
         "%{xaxis.title.text}: %{x:.0f}<br>",
         "<extra></extra>"
       )
@@ -721,7 +825,106 @@ server = function(input, output, session) {
       )
   })
   
+  output$table_crash = renderDataTable({
+    DT::datatable(
+      bicycle_crash_clean %>%
+        group_by(jour) %>%
+        summarise(
+          n_crash = n()
+        ) %>%
+        arrange(desc(n_crash)),
+      rownames = FALSE,
+      colnames = c(
+        "Jour",
+        "Nombre d'accidents"
+      ),
+      options = list(
+        searching = F,
+        lengthChange = F,
+        # pageLength = 5,
+        # lengthMenu = c(5, 10, 15, 20),
+        # scrollY = 300, scrollCollapse = TRUE
+        language = list(url = '//cdn.datatables.net/plug-ins/1.10.24/i18n/French.json')
+      )
+    )
+  })
+  
+  selected_rent = reactive({
+    if(input$sel_rent %in% "Maison individuelle") {
+      return(rent_ls$mai)
+    } else if (input$sel_rent %in% "Appartement T1-T2") {
+      return(rent_ls$app3)
+    } else if (input$sel_rent %in% "Appartement T3+") {
+      return(rent_ls$app12)
+    }
+  })
+  
+  output$house_map = renderLeaflet({
+    df = selected_rent()
+    
+    df = df %>%
+      mutate(INSEE_C = sub("^0+", "", INSEE_C))
+    
+    df = df %>%
+      left_join(loc_insee,
+                by = c("INSEE_C" = "code_commune_INSEE"))
+    
+    radius_scale <- function(x) {
+      scales::rescale(x, to = c(2, 10))
+    }
+    
+    pal <- colorNumeric(palette = "YlOrRd",
+                        # tu peux changer
+                        domain = df$loypredm2)
+    
+    map = leaflet(options = leafletOptions(minZoom = 7, maxZoom = 14)) %>%
+      addProviderTiles(providers$Stadia.AlidadeSmoothDark, options = providerTileOptions(opacity = 1)) %>%
+      addProviderTiles(providers$CartoDB.VoyagerOnlyLabels,
+                       options = providerTileOptions(opacity = 0.6)) %>%
+      setView(
+        lng = (4.9 + 5.9) / 2,
+        lat = (45.95 + 46.5) / 2,
+        zoom = 9
+      ) %>%
+      setMaxBounds(
+        lng1 = 4.7,   # limite ouest
+        lat1 = 45.8,  # limite sud
+        lng2 = 6.7,   # limite est
+        lat2 = 46.5   # limite nord
+      ) %>%
+      addCircleMarkers(
+        data = df,
+        lng = ~ longitude,
+        lat = ~ latitude,
+        color = ~ pal(loypredm2),
+        radius = ~ radius_scale(loypredm2),
+        fillOpacity = 0.6,
+        stroke = 10,
+        label = paste0(
+          "<strong>",
+          df$nom_commune,
+          "</strong><br>",
+          input$sel_rent,
+          " : ",
+          scales::unit_format(unit = " €/m2")(round(df$loypredm2, 0))
+        ) %>%
+          lapply(htmltools::HTML),
+        labelOptions = labelOptions(
+          style = list("font-weight" = "normal", padding = "3px 8px"),
+          textsize = "11px",
+          direction = "auto"
+        )
+      ) %>%
+      addLegend(
+        "bottomright",
+        values = df$loypredm2,
+        pal = pal,
+        title = "Loyer au m2"
+      )
+    
+    map
+  })
+  
 }
 
-# https://docs.posit.co/connect-cloud/how-to/r/shiny-r.html
 shinyApp(ui = ui, server = server)
