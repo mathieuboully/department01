@@ -73,7 +73,7 @@ markers = leaflet::iconList(logo_sncf = leaflet::makeIcon(iconUrl = "./www/logo_
 #       TRUE ~ as.character(grav)
 #     )
 #   )
-saveRDS(bicycle_crash_clean, file = file.path(path_data_output, "bike_crash.rds"))
+# saveRDS(bicycle_crash_clean, file = file.path(path_data_output, "bike_crash.rds"))
 bicycle_crash_clean = readRDS(file = file.path(path_data_output, "bike_crash.rds"))
 
 # Aménagements cyclables
@@ -104,31 +104,31 @@ bicycle_crash_clean = readRDS(file = file.path(path_data_output, "bike_crash.rds
 # stations_clean = stations_clean %>%
 #   left_join(freq_stations, by = c("CODE_UIC" = "Code.UIC"))
 
-saveRDS(stations_clean, file = file.path(path_data_output, "stations.rds"))
+# saveRDS(stations_clean, file = file.path(path_data_output, "stations.rds"))
 stations_clean = readRDS(file = file.path(path_data_output, "stations.rds"))
 
 # Socio
-socio = read.csv2(
-  file.path(path_data_raw, "Filosofi2017_carreaux_1km_met.csv"),
-  header = T,
-  sep = ",",
-  dec = "."
-)
-
-socio_clean = socio %>%
-  mutate(
-    epsg = sub(".*CRS(\\d+)RES.*", "\\1", Idcar_1km),
-    res  = as.numeric(sub(".*RES(\\d+)m.*", "\\1", Idcar_1km)),
-    y    = as.numeric(sub(".*N(\\d+)E.*", "\\1", Idcar_1km)),
-    x    = as.numeric(sub(".*E(\\d+)$", "\\1", Idcar_1km))
-  ) %>%
-  st_as_sf(coords = c("x", "y"), crs = 3035) %>%
-  st_transform(crs = 4326) %>%
-  mutate(lon = st_coordinates(.)[, 1], lat = st_coordinates(.)[, 2]) %>%
-  st_drop_geometry() %>%
-  filter(substr(lcog_geo, 1, 2) == "01")
-
-saveRDS(socio_clean, file = file.path(path_data_output, "socio.rds"))
+# socio = read.csv2(
+#   file.path(path_data_raw, "Filosofi2017_carreaux_1km_met.csv"),
+#   header = T,
+#   sep = ",",
+#   dec = "."
+# )
+# 
+# socio_clean = socio %>%
+#   mutate(
+#     epsg = sub(".*CRS(\\d+)RES.*", "\\1", Idcar_1km),
+#     res  = as.numeric(sub(".*RES(\\d+)m.*", "\\1", Idcar_1km)),
+#     y    = as.numeric(sub(".*N(\\d+)E.*", "\\1", Idcar_1km)),
+#     x    = as.numeric(sub(".*E(\\d+)$", "\\1", Idcar_1km))
+#   ) %>%
+#   st_as_sf(coords = c("x", "y"), crs = 3035) %>%
+#   st_transform(crs = 4326) %>%
+#   mutate(lon = st_coordinates(.)[, 1], lat = st_coordinates(.)[, 2]) %>%
+#   st_drop_geometry() %>%
+#   filter(substr(lcog_geo, 1, 2) == "01")
+# 
+# saveRDS(socio_clean, file = file.path(path_data_output, "socio.rds"))
 socio_clean = readRDS(file = file.path(path_data_output, "socio.rds"))
 
 ui = page_navbar(
