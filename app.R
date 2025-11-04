@@ -399,9 +399,9 @@ server = function(input, output, session) {
   
   selected_iso = reactive({
     if (input$iso_select %in% "10 minutes à vélo")
-      iso_station = readRDS(file = file.path(path_data, "isochrone_station_bike_600.rds"))
+      iso_station = readRDS(file = file.path(path_data_output, "isochrone_station_bike_600.rds"))
     else if (input$iso_select %in% "20 minutes à vélo") {
-      iso_station = readRDS(file = file.path(path_data, "isochrone_station_bike_1200.rds"))
+      iso_station = readRDS(file = file.path(path_data_output, "isochrone_station_bike_1200.rds"))
     } else {
       return(NULL)
     }
