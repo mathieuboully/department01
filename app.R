@@ -44,7 +44,8 @@ setwd(.wdPath)
 #   setwd(.wdPath)
 # }
 
-path_data = "./data"
+path_data_raw = "./data/raw"
+path_data_output = "./data/output"
 path_image = "./www"
 
 col_pal = grDevices::colorRampPalette(c("#ebebeb", "#194264"))
@@ -53,57 +54,62 @@ markers = leaflet::iconList(logo_sncf = leaflet::makeIcon(iconUrl = "./www/logo_
 
 # Data
 # Accidents à vélo
-bicycle_crash = read.csv2(
-  file.path(path_data, "accidentsVelo.csv"),
-  header = T,
-  sep = ",",
-  dec = "."
-)
-bicycle_crash_clean = bicycle_crash %>%
-  filter(dep %in% "01") %>%
-  mutate(
-    date = as.Date(date, format = "%Y-%m-%d"),
-    date_clean = format(date, "%A %d %B %Y"),
-    grav_label = case_when(
-      grav == 1 ~ "Indemne",
-      grav == 2 ~ "Tué",
-      grav == 3 ~ "Blessé hospitalisé",
-      grav == 4 ~ "Blessé léger",
-      TRUE ~ as.character(grav)
-    )
-  )
+# bicycle_crash = read.csv2(
+#   file.path(path_data_raw, "accidentsVelo.csv"),
+#   header = T,
+#   sep = ",",
+#   dec = "."
+# )
+# bicycle_crash_clean = bicycle_crash %>%
+#   filter(dep %in% "01") %>%
+#   mutate(
+#     date = as.Date(date, format = "%Y-%m-%d"),
+#     date_clean = format(date, "%A %d %B %Y"),
+#     grav_label = case_when(
+#       grav == 1 ~ "Indemne",
+#       grav == 2 ~ "Tué",
+#       grav == 3 ~ "Blessé hospitalisé",
+#       grav == 4 ~ "Blessé léger",
+#       TRUE ~ as.character(grav)
+#     )
+#   )
+saveRDS(bicycle_crash_clean, file = file.path(path_data_output, "bike_crash.rds"))
+bicycle_crash_clean = readRDS(file = file.path(path_data_output, "bike_crash.rds"))
 
 # Aménagements cyclables
-bicycle = read.csv2(
-  file.path(path_data, "amenagements-cyclables.csv"),
-  header = T,
-  sep = ",",
-  dec = "."
-)
+# bicycle = read.csv2(
+#   file.path(path_data_raw, "amenagements-cyclables.csv"),
+#   header = T,
+#   sep = ",",
+#   dec = "."
+# )
 
 # Stations
-stations = read.csv2(file.path(path_data, "liste-des-gares.csv"),
-                     header = T,
-                     dec = ".")
-
-stations_clean = stations %>%
-  rename(lat = Y_WGS84, lon = X_WGS84) %>%
-  filter(DEPARTEMEN %in% c("AIN") & VOYAGEURS %in% "O") %>%
-  distinct(CODE_UIC, .keep_all = TRUE)
+# stations = read.csv2(file.path(path_data_raw, "liste-des-gares.csv"),
+#                      header = T,
+#                      dec = ".")
+#
+# stations_clean = stations %>%
+#   rename(lat = Y_WGS84, lon = X_WGS84) %>%
+#   filter(DEPARTEMEN %in% c("AIN") & VOYAGEURS %in% "O") %>%
+#   distinct(CODE_UIC, .keep_all = TRUE)
 
 # Fréquentation stations
-freq_stations = read.csv2(
-  file.path(path_data, "frequentation-gares.csv"),
-  header = T,
-  dec = "."
-)
+# freq_stations = read.csv2(
+#   file.path(path_data_raw, "frequentation-gares.csv"),
+#   header = T,
+#   dec = "."
+# )
 
-stations_clean = stations_clean %>%
-  left_join(freq_stations, by = c("CODE_UIC" = "Code.UIC"))
+# stations_clean = stations_clean %>%
+#   left_join(freq_stations, by = c("CODE_UIC" = "Code.UIC"))
+
+saveRDS(stations_clean, file = file.path(path_data_output, "stations.rds"))
+stations_clean = readRDS(file = file.path(path_data_output, "stations.rds"))
 
 # Socio
 socio = read.csv2(
-  file.path(path_data, "Filosofi2017_carreaux_1km_met.csv"),
+  file.path(path_data_raw, "Filosofi2017_carreaux_1km_met.csv"),
   header = T,
   sep = ",",
   dec = "."
@@ -121,6 +127,9 @@ socio_clean = socio %>%
   mutate(lon = st_coordinates(.)[, 1], lat = st_coordinates(.)[, 2]) %>%
   st_drop_geometry() %>%
   filter(substr(lcog_geo, 1, 2) == "01")
+
+saveRDS(socio_clean, file = file.path(path_data_output, "socio.rds"))
+socio_clean = readRDS(file = file.path(path_data_output, "socio.rds"))
 
 ui = page_navbar(
   title = app_name,
