@@ -5,23 +5,6 @@
 # Date : 2025-11-05
 # -----------------------------------------------------------------------------
 
-# Workspace cleaning
-rm(list = ls())
-
-# Loading the workspace path
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-shiny_path <- getwd()
-
-# Load constant variables
-source("./config/constants.R")
-
-# Change the default size of files that can be imported
-options(shiny.maxRequestSize=100*1024^2)
-
-# Load functions
-
-# Modules
-
 # Load all R packages
 library(shiny)
 library(bslib)
@@ -40,6 +23,18 @@ library(crosstalk)
 library(jsonlite)
 library(scales)
 library(RColorBrewer)
+
+# Workspace cleaning
+rm(list = ls())
+
+# Change the default size of files that can be imported, and other parameters
+options(shiny.maxRequestSize = 100 * 1024^2,
+        dplyr.summarise.inform = FALSE,
+        stringsAsFactors = FALSE)
+
+# Load functions
+
+# Modules
 
 # Capturing R dependencies with renv
 rsconnect::writeManifest()

@@ -1,3 +1,41 @@
+# -----------------------------------------------------------------------------
+# File name : constants.R
+# Description : project variables
+# Author : Boully Mathieu
+# Date : 2025-11-05
+# -----------------------------------------------------------------------------
+
+# Liste des constantes globales
+CONSTS <- list(
+  # --- Application ---
+  APP_NAME = "CycloTrips Planner",
+  APP_VERSION = "1.0.0",
+  
+  # --- Cartographie / OpenRouteService ---
+  DEFAULT_MAP_PROVIDER = "OpenStreetMap",
+  MAX_RADIUS_KM = 100,
+  # rayon max pour certaines fonctionnalités
+  ORS_API_KEY_ENV = "ORS_API_KEY",
+  # nom de la variable d'environnement pour la clé API
+  
+  # --- Chemins des dossiers de données ---
+  PATH_DATA_RAW = "./data/raw/",
+  PATH_DATA_PROCESSED = "./data/processed/",
+  
+  # --- Autres paramètres ---
+  LOG_LEVEL = "INFO",
+  DEBUG = TRUE
+)
+
+# Fonction pour accéder à la clé API en toute sécurité
+get_api_key <- function() {
+  key <- Sys.getenv(CONSTS$ORS_API_KEY_ENV)
+  if (!nzchar(key)) {
+    stop("La clé API OpenRouteService n'est pas définie dans les variables d'environnement.")
+  }
+  return(key)
+}
+
 app_title <- "Enterprise Dashboard"
 app_version <- "1.0.0"
 data_last_day <- "2020-05-10" %>% as.Date()
@@ -14,14 +52,14 @@ metrics_list <- list(
     id = "revenue",
     title = "Sales Revenue",
     currency = "$",
-    category= "sales",
+    category = "sales",
     legend = "Revenue"
   ),
   cost = list(
     id = "cost",
     title = "Production Costs",
     currency = "$",
-    category= "production",
+    category = "production",
     legend = "Cost",
     invert_colors = TRUE
   ),
@@ -29,35 +67,35 @@ metrics_list <- list(
     id = "profit",
     title = "Profit",
     currency = "$",
-    category= "sales",
+    category = "sales",
     legend = "Profit"
   ),
   orders_count = list(
     id = "orders_count",
     title = "Orders",
     currency = NULL,
-    category= "sales",
+    category = "sales",
     legend = "Number of orders"
   ),
   produced_items = list(
     id = "produced_items",
     title = "Produced Items",
     currency = NULL,
-    category= "production",
+    category = "production",
     legend = "Produced items"
   ),
   users_active = list(
     id = "users_active",
     title = "Active Users",
     currency = NULL,
-    category= "users",
+    category = "users",
     legend = "Active users"
   ),
   users_dropped_out = list(
     id = "users_dropped_out",
     title = "Dropped Out Users",
     currency = NULL,
-    category= "users",
+    category = "users",
     legend = "Dropped out users",
     invert_colors = TRUE
   ),
@@ -65,7 +103,7 @@ metrics_list <- list(
     id = "complaints_opened",
     title = "Opened Complaints",
     currency = NULL,
-    category= "complaints",
+    category = "complaints",
     legend = "Opened complaints",
     invert_colors = TRUE
   ),
@@ -73,7 +111,7 @@ metrics_list <- list(
     id = "complaints_closed",
     title = "Closed Complaints",
     currency = NULL,
-    category= "complaints",
+    category = "complaints",
     legend = "Closed complaints"
   )
 )
@@ -89,17 +127,21 @@ map_metrics <- c(
 
 prev_time_range_choices <- list("Previous Year" = "prev_year", "Previous Month" = "prev_month")
 
-appsilonLogo <- HTML("
+appsilonLogo <- HTML(
+  "
   <svg class='logo-svg' viewBox='0 0 660.52 262.96'>
     <use href='assets/icons/icons-sprite-map.svg#appsilon-logo'></use>
   </svg>
-")
+"
+)
 
-shinyLogo <- HTML("
+shinyLogo <- HTML(
+  "
   <svg class='logo-svg' viewBox='0 0 100 68'>
     <use href='assets/icons/icons-sprite-map.svg#shiny-logo'></use>
   </svg>
-")
+"
+)
 
 colors <- list(
   white = "#FFF",

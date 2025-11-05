@@ -22,9 +22,12 @@ library(crosstalk)
 library(jsonlite)
 library(scales)
 library(RColorBrewer)
+library(FactoMineR)
+library(missMDA)
 
-# Load global.R
-# source("global.R")
+# Load config files
+# base::source("./global.R", local = F)
+base::source("./config/constants.R", local = F)
 
 # Sys.setlocale("LC_TIME", "fr_FR.UTF-8")
 
@@ -38,13 +41,13 @@ library(RColorBrewer)
 app_name = "Analyse du territoire de l’Ain"
 last_update = file.info(file.path(getwd(), "app.R"))$atime
 
-if (requireNamespace("rstudioapi", quietly = TRUE) &&
-    rstudioapi::isAvailable()) {
-  .wdPath <- dirname(rstudioapi::getSourceEditorContext()$path)
-} else {
-  .wdPath <- getwd()
-}
-setwd(.wdPath)
+# if (requireNamespace("rstudioapi", quietly = TRUE) &&
+#     rstudioapi::isAvailable()) {
+#   .wdPath <- dirname(rstudioapi::getSourceEditorContext()$path)
+# } else {
+#   .wdPath <- getwd()
+# }
+# setwd(.wdPath)
 
 # if (!is.null(rstudioapi::getActiveProject())) {
 #   .wdPath = setwd(rstudioapi::getActiveProject())
@@ -148,7 +151,7 @@ socio_clean = readRDS(file = file.path(path_data_output, "socio.rds"))
 #   encoding = "UTF-8"
 # ) %>%
 #   filter(DEP %in% "01")
-# 
+#
 # rent_house = read.csv2(
 #   file.path(path_data_raw, "pred-mai-mef-dhup.csv"),
 #   header = T,
@@ -156,7 +159,7 @@ socio_clean = readRDS(file = file.path(path_data_output, "socio.rds"))
 #   encoding = "UTF-8"
 # ) %>%
 #   filter(DEP %in% "01")
-# 
+#
 # rent_app3 = read.csv2(
 #   file.path(path_data_raw, "pred-app3-mef-dhup.csv"),
 #   header = T,
@@ -164,7 +167,7 @@ socio_clean = readRDS(file = file.path(path_data_output, "socio.rds"))
 #   encoding = "UTF-8"
 # ) %>%
 #   filter(DEP %in% "01")
-# 
+#
 # rent_app12 = read.csv2(
 #   file.path(path_data_raw, "pred-app12-mef-dhup.csv"),
 #   header = T,
@@ -172,7 +175,7 @@ socio_clean = readRDS(file = file.path(path_data_output, "socio.rds"))
 #   encoding = "UTF-8"
 # ) %>%
 #   filter(DEP %in% "01")
-# 
+#
 # saveRDS(list(mai = rent_house,
 #              app3 = rent_app3,
 #              app12 = rent_app12), file = file.path(path_data_output, "rent.rds"))
@@ -187,7 +190,7 @@ rent_ls = readRDS(file = file.path(path_data_output, "rent.rds"))
 #   encoding = "UTF-8"
 # ) %>%
 #   filter(nom_departement %in% "Ain")
-# 
+#
 # saveRDS(loc_insee, file = file.path(path_data_output, "loc_insee.rds"))
 loc_insee = readRDS(file = file.path(path_data_output, "loc_insee.rds"))
 
@@ -245,7 +248,12 @@ ui = page_navbar(
             selectInput(
               inputId = "iso_select",
               label = "Couvertures des gares",
-              c("10 minutes à vélo", "20 minutes à vélo", "10 minutes en voiture", "20 minutes en voiture"),
+              c(
+                "10 minutes à vélo",
+                "20 minutes à vélo",
+                "10 minutes en voiture",
+                "20 minutes en voiture"
+              ),
               multiple = F,
               selected = "10 minutes à vélo"
             ),
@@ -286,10 +294,7 @@ ui = page_navbar(
         theme_color = "secondary",
         showcase = bsicons::bs_icon("building-fill")
       ),
-      card(
-        full_screen = TRUE,
-        plotly::plotlyOutput("passengers_evolution")
-      ),
+      card(full_screen = TRUE, plotly::plotlyOutput("passengers_evolution")),
       card(
         full_screen = TRUE,
         leafletOutput("frequentation_map"),
@@ -312,49 +317,42 @@ ui = page_navbar(
           )
         ))
       ),
-      card(
-        dataTableOutput("table_crash"),
-        card_footer(
-          tags$h5('Jours de la semaine les plus à risque')
-        )
-      ),
+      card(full_screen = TRUE, plotly::plotlyOutput("famd_ind_bc")),
+      card(dataTableOutput("table_crash"), card_footer(
+        tags$h5('Jours de la semaine les plus à risque')
+      )),
       col_widths = c(12, 12)
     )
   ),
   nav_panel(
     "Loyers",
     icon = bsicons::bs_icon("house-fill"),
-    layout_columns(
-      card(
-        layout_sidebar(
-          fillable = TRUE,
-          border = T,
-          sidebar = sidebar(
-            position = "right",
-            width = 300,
-            open = T,
-            selectInput(
-              inputId = "sel_rent",
-              label = "Type de location",
-              c("Maison individuelle", "Appartement T1-T2", "Appartement T3+"),
-              multiple = F,
-              selected = "Maison individuelle"
-            )
-          ),
-          leafletOutput("house_map"),
-          card_footer(
-            tags$h5("Loyers par type de logement"),
-            popover(
-            a("En savoir plus", href = "#"),
-            markdown(
-              "Cette carte interactive présente la répartition des loyers à l’échelle communale pour le trimestre 2023, selon le type de bien : maisons individuelles, appartements T1, T2 et T3+.<br> 
+    layout_columns(card(
+      layout_sidebar(
+        fillable = TRUE,
+        border = T,
+        sidebar = sidebar(
+          position = "right",
+          width = 300,
+          open = T,
+          selectInput(
+            inputId = "sel_rent",
+            label = "Type de location",
+            c("Maison individuelle", "Appartement T1-T2", "Appartement T3+"),
+            multiple = F,
+            selected = "Maison individuelle"
+          )
+        ),
+        leafletOutput("house_map"),
+        card_footer(tags$h5("Loyers par type de logement"), popover(
+          a("En savoir plus", href = "#"),
+          markdown(
+            "Cette carte interactive présente la répartition des loyers à l’échelle communale pour le trimestre 2023, selon le type de bien : maisons individuelles, appartements T1, T2 et T3+.<br>
 Les données proviennent de l’<a href='https://www.data.gouv.fr/datasets/communes-de-france-base-des-codes-postaux/', target='_blank'>Open Data gouvernemental</a> sur les loyers d’annonce par commune."
-            )
-          ))
-        )
-      ),
-      col_widths = c(12)
-    )
+          )
+        ))
+      )
+    ), col_widths = c(12))
   ),
   nav_panel(
     title = "À propos",
@@ -388,11 +386,7 @@ L’Ain constitue un territoire à la fois naturellement préservé et économiq
               )
             ),
             tags$li(
-              tags$a(
-                href = "https://www.data.gouv.fr/datasets/communes-de-france-base-des-codes-postaux/",
-                "Communes de france",
-                target = "_blank"
-              )
+              tags$a(href = "https://www.data.gouv.fr/datasets/communes-de-france-base-des-codes-postaux/", "Communes de france", target = "_blank")
             ),
             tags$li(
               tags$a(
@@ -517,9 +511,12 @@ server = function(input, output, session) {
         zoom = 9
       ) %>%
       setMaxBounds(
-        lng1 = 4.7,   # limite ouest
-        lat1 = 45.8,  # limite sud
-        lng2 = 6.7,   # limite est
+        lng1 = 4.7,
+        # limite ouest
+        lat1 = 45.8,
+        # limite sud
+        lng2 = 6.7,
+        # limite est
         lat2 = 46.5   # limite nord
       )
     iso_ls = selected_iso()
@@ -611,9 +608,12 @@ server = function(input, output, session) {
         zoom = 9
       ) %>%
       setMaxBounds(
-        lng1 = 4.7,   # limite ouest
-        lat1 = 45.8,  # limite sud
-        lng2 = 6.7,   # limite est
+        lng1 = 4.7,
+        # limite ouest
+        lat1 = 45.8,
+        # limite sud
+        lng2 = 6.7,
+        # limite est
         lat2 = 46.5   # limite nord
       ) %>%
       addCircleMarkers(
@@ -629,9 +629,7 @@ server = function(input, output, session) {
           LIBELLE,
           "</strong><br>",
           "Voyageurs en 2024 : ",
-          label_number(big.mark = " ", decimal.mark = ",")(
-            stations_clean$Total.Voyageurs.2024
-          )
+          label_number(big.mark = " ", decimal.mark = ",")(stations_clean$Total.Voyageurs.2024)
         ) %>%
           lapply(htmltools::HTML),
         labelOptions = labelOptions(
@@ -672,7 +670,7 @@ server = function(input, output, session) {
   output$pop_cov_box = renderText ({
     value_react = prop_cov_text_react()
     
-    return(paste0(value_react, ' (',input$iso_select, ')'))
+    return(paste0(value_react, ' (', input$iso_select, ')'))
   })
   
   output$passengers_evolution = renderPlotly({
@@ -837,15 +835,10 @@ server = function(input, output, session) {
     DT::datatable(
       bicycle_crash_clean %>%
         group_by(jour) %>%
-        summarise(
-          n_crash = n()
-        ) %>%
+        summarise(n_crash = n()) %>%
         arrange(desc(n_crash)),
       rownames = FALSE,
-      colnames = c(
-        "Jour",
-        "Nombre d'accidents"
-      ),
+      colnames = c("Jour", "Nombre d'accidents"),
       options = list(
         searching = F,
         lengthChange = F,
@@ -858,7 +851,7 @@ server = function(input, output, session) {
   })
   
   selected_rent = reactive({
-    if(input$sel_rent %in% "Maison individuelle") {
+    if (input$sel_rent %in% "Maison individuelle") {
       return(rent_ls$mai)
     } else if (input$sel_rent %in% "Appartement T1-T2") {
       return(rent_ls$app3)
@@ -874,15 +867,13 @@ server = function(input, output, session) {
       mutate(INSEE_C = sub("^0+", "", INSEE_C))
     
     df = df %>%
-      left_join(loc_insee,
-                by = c("INSEE_C" = "code_commune_INSEE"))
+      left_join(loc_insee, by = c("INSEE_C" = "code_commune_INSEE"))
     
     radius_scale <- function(x) {
       scales::rescale(x, to = c(2, 10))
     }
     
-    pal <- colorNumeric(palette = "YlOrRd",
-                        # tu peux changer
+    pal <- colorNumeric(palette = "YlOrRd", # tu peux changer
                         domain = df$loypredm2)
     
     map = leaflet(options = leafletOptions(minZoom = 7, maxZoom = 14)) %>%
@@ -895,9 +886,12 @@ server = function(input, output, session) {
         zoom = 9
       ) %>%
       setMaxBounds(
-        lng1 = 4.7,   # limite ouest
-        lat1 = 45.8,  # limite sud
-        lng2 = 6.7,   # limite est
+        lng1 = 4.7,
+        # limite ouest
+        lat1 = 45.8,
+        # limite sud
+        lng2 = 6.7,
+        # limite est
         lat2 = 46.5   # limite nord
       ) %>%
       addCircleMarkers(
@@ -933,6 +927,118 @@ server = function(input, output, session) {
     map
   })
   
+  output$famd_ind_bc = renderPlotly({
+    df_bc = readRDS(file = file.path(CONSTS$PATH_DATA_PROCESSED, "bicycle_crash.rds"))[1:1000, ]
+    
+    act_feat = c("agg", "int", "col", "lum", "age")
+    sup_feat = c("grav")
+    
+    res_df_bc_impute = missMDA::imputeFAMD(df_bc[, act_feat], ncp = 3)
+    
+    res_famd <- FAMD(
+      base = res_df_bc_impute$completeObs,
+      ncp = 2,
+      sup.var = NULL,
+      graph = F
+    )
+    
+    x_var <- res_famd$ind$coord[, 1]
+    y_var <- res_famd$ind$coord[, 2]
+    color_var <- df_bc$grav_label
+    text_var <- df_bc$grav_label
+    
+    min_xaxis <- min(x_var)
+    max_xaxis <- max(x_var)
+    
+    min_yaxis <- min(y_var)
+    max_yaxis <- max(y_var)
+    
+    fig <- plot_ly(
+      x = x_var,
+      y = y_var,
+      color = color_var,
+      type = "scatter",
+      mode = "markers",
+      text = text_var,
+      hovertemplate = paste(
+        "Gravité : %{text}<br>",
+        "%{xaxis.title.text}: %{x:.1f}<br>",
+        "%{yaxis.title.text}: %{y:.1f}",
+        "<extra></extra>"
+      )
+    ) %>% layout(
+      title = list(text = '<b>Causes de la gravité des accidents</b></sup>', font = list(
+        size = 15, color = "grey"
+      )),
+      xaxis = list(
+        title = "Dim 1",
+        zeroline = T,
+        zerolinecolor = 'grey',
+        zerolinewidth = 1,
+        showgrid = F,
+        showticklabels = F,
+        fixedrange = F,
+        color = "grey",
+        tickfont = list(color = "grey"),
+        range = c(min_xaxis, max_xaxis)
+      ),
+      yaxis = list(
+        title = "Dim 2",
+        zeroline = T,
+        zerolinecolor = 'grey',
+        zerolinewidth = 1,
+        showgrid = F,
+        showticklabels = F,
+        fixedrange = F,
+        color = "grey",
+        tickfont = list(color = "grey"),
+        range = c(min_yaxis, max_yaxis)
+      ),
+      hoverlabel = list(font = list(color = "black")),
+      showlegend = T,
+      legend = list(
+        title = list(text = '<b>Gravité</b>'),
+        orientation = 'v',
+        x = 1,
+        y = .1,
+        itemsizing = 'constant',
+        font = list(color = "grey"),
+        bgcolor = "#E2E2E2",
+        bordercolor = "#FFFFFF",
+        borderwidth = 0
+      ),
+      margin = list(
+        t = 40,
+        b = 40,
+        l = 40,
+        r = 40
+      )
+    )
+    
+    for (i in seq(5)) {
+      fig <- fig %>%
+        add_segments(
+          x = 0,
+          xend = res_famd$var$coord[i, 1],
+          y = 0,
+          yend = res_famd$var$coord[i, 2],
+          line = list(color = 'black'),
+          inherit = FALSE,
+          showlegend = FALSE
+        ) %>%
+        add_annotations(
+          x = res_famd$var$coord[i, 1],
+          y = res_famd$var$coord[i, 2],
+          ax = 0,
+          ay = 0,
+          text = act_feat[i],
+          xanchor = 'center',
+          yanchor = 'bottom'
+        )
+    }
+    
+    fig
+  })
 }
 
 # Launching app
