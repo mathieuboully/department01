@@ -1,5 +1,10 @@
-# rm(list = ls())
+# -----------------------------------------------------------------------------
+# File name : app.R
+# Author : Boully Mathieu
+# Date : 2025-11-05
+# -----------------------------------------------------------------------------
 
+# Load all R packages
 library(shiny)
 library(bslib)
 library(bsicons)
@@ -17,6 +22,9 @@ library(crosstalk)
 library(jsonlite)
 library(scales)
 library(RColorBrewer)
+
+# Load global.R
+# source("global.R")
 
 # Sys.setlocale("LC_TIME", "fr_FR.UTF-8")
 
@@ -397,7 +405,7 @@ L’Ain constitue un territoire à la fois naturellement préservé et économiq
               tags$a(href = "https://ressources.data.sncf.com/explore/dataset/liste-des-gares/information/", "Gares ferroviaires", target = "_blank")
             ),
             tags$li(
-              tags$a(href = "https://ressources.data.sncf.com/explore/dataset/frequentation-gares/information/", "Fréqentation des gares", target = "_blank")
+              tags$a(href = "https://ressources.data.sncf.com/explore/dataset/frequentation-gares/information/", "Fréquentation des gares", target = "_blank")
             ),
             tags$li(
               tags$a(href = "https://www.data.gouv.fr/datasets/bases-de-donnees-annuelles-des-accidents-corporels-de-la-circulation-routiere-annees-de-2005-a-2024/", "Accidents de vélo", target = "_blank")
@@ -927,4 +935,5 @@ server = function(input, output, session) {
   
 }
 
+# Launching app
 shinyApp(ui = ui, server = server)
