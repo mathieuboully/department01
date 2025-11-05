@@ -26,8 +26,8 @@ library(FactoMineR)
 library(missMDA)
 
 # Load config files
-# base::source("./global.R", local = F)
-# base::source("./config/constants.R", local = F)
+base::source("./global.R", local = F)
+base::source("./config/constants.R", local = F)
 
 # Sys.setlocale("LC_TIME", "fr_FR.UTF-8")
 
@@ -928,7 +928,7 @@ server = function(input, output, session) {
   })
   
   output$famd_ind_bc = renderPlotly({
-    df_bc = readRDS(file = file.path("./data/processed", "bicycle_crash.rds"))[1:1000, ]
+    df_bc = readRDS(file = file.path(CONSTS$PATH_DATA_PROCESSED, "bicycle_crash.rds"))[1:1000, ]
     
     act_feat = c("agg", "int", "col", "lum", "age")
     sup_feat = c("grav")
