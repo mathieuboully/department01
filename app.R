@@ -39,7 +39,7 @@ library(missMDA)
 
 # Sys.setlocale(category = "LC_ALL", locale = "French")
 app_name = "Analyse du territoire de l’Ain"
-last_update = file.info(file.path(getwd(), "app.R"))$atime
+last_update = file.info(file.path("app.R"))$atime
 
 # if (requireNamespace("rstudioapi", quietly = TRUE) &&
 #     rstudioapi::isAvailable()) {
