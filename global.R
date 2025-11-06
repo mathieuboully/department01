@@ -32,6 +32,9 @@ options(shiny.maxRequestSize = 100 * 1024^2,
         dplyr.summarise.inform = FALSE,
         stringsAsFactors = FALSE)
 
+# Set the system locale to French for date, number and text formatting
+Sys.setlocale(category = "LC_ALL", locale = "French")
+
 # Load functions
 
 # Modules

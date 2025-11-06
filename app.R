@@ -29,40 +29,21 @@ library(missMDA)
 base::source("./global.R", local = F)
 base::source("./config/constants.R", local = F)
 
-# Sys.setlocale("LC_TIME", "fr_FR.UTF-8")
+# Get the last access time of the app.R file
+last_update = base::file.info(file.path("app.R"))$atime
 
-# options(
-#   shiny.maxRequestSize = 100 * 1024 ^ 2,
-#   dplyr.summarise.inform = FALSE,
-#   stringsAsFactors = FALSE
-# )
+col_pal = grDevices::colorRampPalette(CONSTS$color_ramp_palette)
 
-# Sys.setlocale(category = "LC_ALL", locale = "French")
-app_name = "Analyse du territoire de l’Ain"
-last_update = file.info(file.path("app.R"))$atime
-
-# if (requireNamespace("rstudioapi", quietly = TRUE) &&
-#     rstudioapi::isAvailable()) {
-#   .wdPath <- dirname(rstudioapi::getSourceEditorContext()$path)
-# } else {
-#   .wdPath <- getwd()
-# }
-# setwd(.wdPath)
-
-# if (!is.null(rstudioapi::getActiveProject())) {
-#   .wdPath = setwd(rstudioapi::getActiveProject())
-# } else {
-#   .wdPath = dirname(rstudioapi::getSourceEditorContext()$path)
-#   setwd(.wdPath)
-# }
-
-path_data_raw = "./data/raw"
-path_data_output = "./data/output"
-path_image = "./www"
-
-col_pal = grDevices::colorRampPalette(c("#ebebeb", "#194264"))
-
-markers = leaflet::iconList(logo_sncf = leaflet::makeIcon(iconUrl = "./www/logo_sncf.png", iconWidth = 15))
+markers <- setNames(
+  lapply(names(CONSTS$map$markers), function(name) {
+    leaflet::makeIcon(
+      iconUrl   = file.path(CONSTS$path_image, CONSTS$map$markers[[name]]$file),
+      iconWidth = CONSTS$map$markers[[name]]$width
+    )
+  }),
+  names(CONSTS$map$markers)
+)
+markers = do.call(leaflet::iconList, markers)
 
 # Data
 # Accidents à vélo
@@ -86,7 +67,7 @@ markers = leaflet::iconList(logo_sncf = leaflet::makeIcon(iconUrl = "./www/logo_
 #     )
 #   )
 # saveRDS(bicycle_crash_clean, file = file.path(path_data_output, "bike_crash.rds"))
-bicycle_crash_clean = readRDS(file = file.path(path_data_output, "bike_crash.rds"))
+bicycle_crash_clean = readRDS(file = file.path(CONSTS$path_data_processed, "bike_crash.rds"))
 
 # Aménagements cyclables
 # bicycle = read.csv2(
@@ -117,7 +98,7 @@ bicycle_crash_clean = readRDS(file = file.path(path_data_output, "bike_crash.rds
 #   left_join(freq_stations, by = c("CODE_UIC" = "Code.UIC"))
 
 # saveRDS(stations_clean, file = file.path(path_data_output, "stations.rds"))
-stations_clean = readRDS(file = file.path(path_data_output, "stations.rds"))
+stations_clean = readRDS(file = file.path(CONSTS$path_data_processed, "stations.rds"))
 
 # Socio
 # socio = read.csv2(
@@ -141,7 +122,7 @@ stations_clean = readRDS(file = file.path(path_data_output, "stations.rds"))
 #   filter(substr(lcog_geo, 1, 2) == "01")
 #
 # saveRDS(socio_clean, file = file.path(path_data_output, "socio.rds"))
-socio_clean = readRDS(file = file.path(path_data_output, "socio.rds"))
+socio_clean = readRDS(file = file.path(CONSTS$path_data_processed, "socio.rds"))
 
 # Rent
 # rent_house = read.csv2(
@@ -179,7 +160,7 @@ socio_clean = readRDS(file = file.path(path_data_output, "socio.rds"))
 # saveRDS(list(mai = rent_house,
 #              app3 = rent_app3,
 #              app12 = rent_app12), file = file.path(path_data_output, "rent.rds"))
-rent_ls = readRDS(file = file.path(path_data_output, "rent.rds"))
+rent_ls = readRDS(file = file.path(CONSTS$path_data_processed, "rent.rds"))
 
 # Location INSEE
 # loc_insee = read.csv2(
@@ -192,39 +173,39 @@ rent_ls = readRDS(file = file.path(path_data_output, "rent.rds"))
 #   filter(nom_departement %in% "Ain")
 #
 # saveRDS(loc_insee, file = file.path(path_data_output, "loc_insee.rds"))
-loc_insee = readRDS(file = file.path(path_data_output, "loc_insee.rds"))
+loc_insee = readRDS(file = file.path(CONSTS$path_data_processed, "loc_insee.rds"))
 
 ui = page_navbar(
-  title = app_name,
+  title = CONSTS$ui$app_name,
   fillable = FALSE,
   theme = bs_theme(
-    bootswatch = "minty",
-    bg = "#ffffff",
-    fg = "#000000",
-    primary = "#194264",
-    secondary = "#000000",
-    success = "#ebebeb",
-    navbar_bg = "#194264",
-    base_font = font_google("Arimo"),
-    code_font = font_google("Arimo"),
-    heading_font = font_google("Phudu")
+    bootswatch = CONSTS$theme$bootswatch,
+    bg = CONSTS$theme$bg,
+    fg = CONSTS$theme$fg,
+    primary = CONSTS$theme$primary,
+    secondary = CONSTS$theme$secondary,
+    success = CONSTS$theme$success,
+    navbar_bg = CONSTS$theme$navbar_bg,
+    base_font = font_google(CONSTS$theme$base_font_google),
+    code_font = font_google(CONSTS$theme$code_font_google),
+    heading_font = font_google(CONSTS$theme$heading_font_google)
   ),
   sidebar = sidebar(
-    nav_panel(title = ""),
+    nav_panel(title = CONSTS$ui$sidebar_title),
     # accordion(
     #   open = F,
     #   accordion_panel("Gares et accessibilité", icon = bsicons::bs_icon("train-front-fill"))
     # ),
     tags$p(
-      "Cette application interactive permet d’analyser l’accessibilité aux gares et les accidents de vélo dans le département de l’Ain en les reliant à des variables socio-démographiques telles que la densité de population."
+      CONSTS$ui$sidebar_desc
     ),
     tags$a(
       tags$img(
-        src = "logo.png",
-        width = "70%",
+        src = CONSTS$ui$sidebar_logo,
+        width = CONSTS$ui$sidebar_logo_width,
         height = "auto"
       ),
-      href = "https://www.ain.fr/",
+      href = CONSTS$ui$sidebar_logo_link,
       target = "_blank"
     ),
     tags$sub(paste(
@@ -423,18 +404,17 @@ L’Ain constitue un territoire à la fois naturellement préservé et économiq
         ),
         hr(),
         h3("Contact"),
-        p("Pour toute question ou suggestion, n'hésitez pas à me contacter :"),
-        tags$ul(tags$li(
-          tags$a(href = "mailto:mathieu.boully@hotmail.com", "mathieu.boully@hotmail.com")
-        )),
-        tags$ul(tags$li(
-          tags$a(
-            href = "https://www.linkedin.com/in/mathieuboully/",
-            "LinkedIn",
-            target = "_blank",
-            tags$i(class = "bi bi-house-fill")
-          )
-        )),
+        tags$ul(
+          lapply(contacts, function(contact) {
+            tags$li(
+              tags$a(
+                href = contact$href,
+                target = "_blank",
+                contact$name
+              )
+            )
+          })
+        ),
         hr(),
         h3("Télécharger les données brutes"),
         downloadButton("download_station", tooltip(
@@ -456,12 +436,13 @@ L’Ain constitue un territoire à la fois naturellement préservé et économiq
   #   )
   # ),
   footer = tags$sub(
-    "© 2025",
-    tags$a(href = "https://www.linkedin.com/in/mathieuboully/", "Mathieu Boully") ,
-    " ∙ Cette application a été crée avec",
-    tags$a("Shiny", href = "https://shiny.posit.co/", target = "_blank"),
-    " ∙ ",
-    tags$a("Code source GitHub", href = "https://github.com/mathieuboully/departement01", target = "_blank")
+    paste0(CONSTS$footer$year$text), CONSTS$footer$text_sep,
+    tags$a(href = CONSTS$footer$author$url, CONSTS$footer$author$text), CONSTS$footer$text_sep,
+    "Cette application a été créée avec ", 
+    tags$a(href = CONSTS$footer$build_wth$url, CONSTS$footer$build_wth$text, target = "_blank"), CONSTS$footer$text_sep,
+    tags$a(href = CONSTS$footer$github$url, CONSTS$footer$github$text, target = "_blank"), CONSTS$footer$text_sep,
+    "Licence ",
+    tags$a(href = CONSTS$footer$license$url, CONSTS$footer$license$text, target = "_blank")
   )
 )
 
@@ -484,13 +465,13 @@ server = function(input, output, session) {
   
   selected_iso = reactive({
     if (input$iso_select %in% "10 minutes à vélo")
-      iso_station = readRDS(file = file.path(path_data_output, "isochrone_station_bike_600.rds"))
+      iso_station = readRDS(file = file.path(CONSTS$path_data_processed, "isochrone_station_bike_600.rds"))
     else if (input$iso_select %in% "20 minutes à vélo") {
-      iso_station = readRDS(file = file.path(path_data_output, "isochrone_station_bike_1200.rds"))
+      iso_station = readRDS(file = file.path(CONSTS$path_data_processed, "isochrone_station_bike_1200.rds"))
     } else if (input$iso_select %in% "10 minutes en voiture") {
-      iso_station = readRDS(file = file.path(path_data_output, "isochrone_station_car_600.rds"))
+      iso_station = readRDS(file = file.path(CONSTS$path_data_processed, "isochrone_station_car_600.rds"))
     } else if (input$iso_select %in% "20 minutes en voiture") {
-      iso_station = readRDS(file = file.path(path_data_output, "isochrone_station_car_1200.rds"))
+      iso_station = readRDS(file = file.path(CONSTS$path_data_processed, "isochrone_station_car_1200.rds"))
     } else {
       return(NULL)
     }
@@ -499,25 +480,32 @@ server = function(input, output, session) {
   })
   
   output$mobility_map = renderLeaflet({
-    # pal <- colorNumeric(c("#ffffff", "#194264"),, domain = socio_clean$ind)
     
-    map = leaflet(options = leafletOptions(minZoom = 7, maxZoom = 14)) %>%
-      addProviderTiles(providers$Stadia.AlidadeSmoothDark, options = providerTileOptions(opacity = 1)) %>%
-      addProviderTiles(providers$CartoDB.VoyagerOnlyLabels,
-                       options = providerTileOptions(opacity = 0.6)) %>%
+    center_lng <- mean(CONSTS$map$center$lng)
+    center_lat <- mean(CONSTS$map$center$lat)
+    
+    map <- leaflet(options = leafletOptions(
+      minZoom = CONSTS$map$zoom$min,
+      maxZoom = CONSTS$map$zoom$max
+    )) %>%
+      addProviderTiles(
+        providers[[CONSTS$map$tiles$base$provider]],
+        options = providerTileOptions(opacity = CONSTS$map$tiles$base$opacity)
+      ) %>%
+      addProviderTiles(
+        providers[[CONSTS$map$tiles$overlay$provider]],
+        options = providerTileOptions(opacity = CONSTS$map$tiles$overlay$opacity)
+      ) %>%
       setView(
-        lng = (4.9 + 5.9) / 2,
-        lat = (45.95 + 46.5) / 2,
-        zoom = 9
+        lng = center_lng,
+        lat = center_lat,
+        zoom = CONSTS$map$zoom$default
       ) %>%
       setMaxBounds(
-        lng1 = 4.7,
-        # limite ouest
-        lat1 = 45.8,
-        # limite sud
-        lng2 = 6.7,
-        # limite est
-        lat2 = 46.5   # limite nord
+        lng1 = CONSTS$map$bounds$lng1,
+        lat1 = CONSTS$map$bounds$lat1,
+        lng2 = CONSTS$map$bounds$lng2,
+        lat2 = CONSTS$map$bounds$lat2
       )
     iso_ls = selected_iso()
     for (i in iso_ls) {
@@ -928,7 +916,7 @@ server = function(input, output, session) {
   })
   
   output$famd_ind_bc = renderPlotly({
-    df_bc = readRDS(file = file.path(CONSTS$PATH_DATA_PROCESSED, "bicycle_crash.rds"))[1:1000, ]
+    df_bc = readRDS(file = file.path(CONSTS$path_data_processed, "bicycle_crash.rds"))[1:1000, ]
     
     act_feat = c("agg", "int", "col", "lum", "age")
     sup_feat = c("grav")
