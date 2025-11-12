@@ -23,6 +23,8 @@ library(crosstalk)
 library(jsonlite)
 library(scales)
 library(RColorBrewer)
+library(FactoMineR)
+library(missMDA)
 
 # Workspace cleaning
 rm(list = ls())
@@ -41,10 +43,3 @@ Sys.setlocale(category = "LC_ALL", locale = "French")
 
 # Capturing R dependencies with renv
 rsconnect::writeManifest()
-
-# The information in this document is CFM Proprietary Information and is disclosed in confidence. 
-# It is the property of CFM International and its parent companies, and shall not be used, disclosed 
-# to others or reproduced without the express written consent of CFM. If consent is given for reproduction 
-# in whole or in part, this notice shall appear in any such reproduction in whole or in part. 
-# The information contained in this document may also be controlled by the U.S. and French export 
-# control laws. Unauthorized export or re-export is prohibited.
