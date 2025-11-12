@@ -4,14 +4,18 @@
 
 ## Objectif
 
-Cette application interactive [R Shiny](https://shiny.posit.co/) permet d’analyser l’accessibilité aux gares, les accidents de vélo et les loyers dans le département de l’Ain en les reliant à des variables socio-démographiques telles que la densité de population.
+Cette application interactive [R Shiny](https://shiny.posit.co/) permet d’analyser le territoire de l'Ain sous différents angles :
+
+- **L’accessibilité aux gares**.
+- **Les accidents de vélo**.
+- **Les montants des loyers en les reliant à des variables socio-démographiques telles que la densité de population**.
+
+## Fonctionnalités
 
 - Une **utilisation intuitive** .
 - Une **ergonomie soignée**.
 - Des éléments **graphiques dynamiques**, incluant cartes et visualisations interactives. 
 - Une **charte graphique respectant celle du département de l'Ain**.
-
-## Fonctionnalités
 
 ### Gares et accessibilité
 
