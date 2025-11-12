@@ -2,14 +2,12 @@
 
 ## Objectif
 
-Cette application R Shiny interactive permet de :
+Cette application interactive [R Shiny](https://shiny.posit.co/) permet d’analyser l’accessibilité aux gares, les accidents de vélo et les loyers dans le département de l’Ain en les reliant à des variables socio-démographiques telles que la densité de population.
 
 - Explorer la **répartition des loyers** à l’échelle communale pour le trimestre 2023, selon le type de logement :
   - Maisons individuelles
   - Appartements T1, T2 et T3+
 - Analyser la **mobilité et la sécurité à vélo**, notamment l’accessibilité aux gares et la localisation des accidents, en fonction de variables socio-démographiques (densité de population, revenu, âge).
-
----
 
 ![](www/app_screen.png)
 
