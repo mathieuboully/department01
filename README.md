@@ -103,4 +103,4 @@ library(missMDA)
 ## Contact
 
 - E-mail : [mathieu.boully@hotmail.com](mailto:mathieu.boully@hotmail.com)  
-- LinkedIn : [Ton profil LinkedIn](https://www.linkedin.com/in/ton-profil)  
+- [LinkedIn](https://www.linkedin.com/in/mathieuboully/)
