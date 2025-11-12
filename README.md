@@ -68,27 +68,15 @@ Les données utilisées dans ce projet proviennent de différentes sources ouver
 
 ## Libraries
 
-```r
-library(shiny)
-library(bslib)
-library(bsicons)
-library(dplyr)
-library(lubridate)
-library(stringr)
-library(leaflet)
-library(leaflet.extras)
-library(plotly)
-library(sf)
-library(tidyr)
-library(grDevices)
-library(DT)
-library(crosstalk)
-library(jsonlite)
-library(scales)
-library(RColorBrewer)
-library(FactoMineR)
-library(missMDA)
-```
+Les pricipales librairies utilisées sont :
+
+- `shiny`
+- `bslib`
+- `dplyr`
+- `lubridate`
+- `leaflet`
+- `plotly`
+- `FactoMineR`
 
 ## Ré-utilisation
 
@@ -99,6 +87,11 @@ library(missMDA)
 3. Cloner ce dépôt Git en local.  
 4. Exécuter les fichiers `.R` du dossier `functions/` pour charger les fonctions de pré-traitement des données.  
 5. Exécuter le fichier `app.R` pour lancer l’application Shiny.
+
+## Autres liens / Ressources
+
+- [Open data des accidents de vélo en France](https://opendata.koumoul.com/datasets/accidents-velos)
+- [Dictionnaire de données accidents de vélo](https://www.onisr.securite-routiere.gouv.fr/sites/default/files/2024-10/Description%20des%20bases%20de%20donn%C3%A9es%20annuelles.pdf)
 
 ## Contact
 
