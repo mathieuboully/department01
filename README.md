@@ -1,10 +1,23 @@
 # Analyse du territoire de l’Ain
 
+![](www/app_screen.png)
+
 ## Objectif
 
 Cette application interactive [R Shiny](https://shiny.posit.co/) permet d’analyser l’accessibilité aux gares, les accidents de vélo et les loyers dans le département de l’Ain en les reliant à des variables socio-démographiques telles que la densité de population.
 
 ## Fonctionnalités
+
+### Gares et accessibilité
+
+- Cartographier les gares toujours actives dans le département avec une couche de densité de la population  et des zones isochrones : connaître les communes éloignées des mobilités douces.
+- Évolution annuelle du nombre de passagers dans les 10 plus grandes gares de l'Ain
+- Indicateurs liés au traffic :
+  + Pourcentage de la population à moins de 10 minutes à vélo d'une gare.
+  + Nombre de voyageurs en 2024.
+  + Nombre de gares actives.
+ 
+![](www/app_plot_top10.png)
 
 ### Accidents de vélo
 
@@ -12,21 +25,17 @@ Cette application interactive [R Shiny](https://shiny.posit.co/) permet d’anal
 - Comprendre les facteurs qui influencent la gravité des accidents à vélo.
 - Détecter les jours de la semaine les plus accidentogènes afin d’identifier les périodes et les saisons à risque et d’orienter les actions de prévention.
 
-### Gares et accessibilité
+![](www/app_plot_bicycle.png)
 
-- Cartographier les gares toujours actives dans le département avec une couche de densité de la population  et des zones isochrones : connaître les communes éloignées des mobilités douces.
-- Indicateurs liés au traffic :
-  + Pourcentage de la population à moins de 10 minutes à vélo d'une gare.
-  + Nombre de voyageurs en 2024.
-  + Nombre de gares actives.
-
-  ### Loyers
+### Loyers
   
-  - Explorer la **répartition des montants des loyers** à l’échelle communale de 2018 à 2023, selon le type de logement.
+- Explorer la **répartition des montants des loyers** à l’échelle communale de 2018 à 2023, selon le type de logement.
 
-## Méthodes statistiques
+![](www/app_map_rent.png)
 
-Dans ce projet, la réduction de dimensions **FAMD** est appliquée sur des variables quantitatives et factorielles comme :
+## Méthode statistiques utilisé
+
+Dans ce projet, la réduction de dimensions **FAMD** est appliquée pour analyser la gravité des accidents de vélo sur des variables quantitatives et factorielles comme :
 - agglomération
 - intersection
 - type de collision
@@ -35,27 +44,61 @@ Dans ce projet, la réduction de dimensions **FAMD** est appliquée sur des vari
 
 Avant l’analyse, les valeurs manquantes (NA) sont imputées à l’aide de la fonction `imputeFAMD()` du package `missMDA`, qui estime les valeurs manquantes en tenant compte des relations entre variables.
 
-![](www/app_screen.png)
+## Structure du projet
 
-## Contenu du projet
+- `app.R` : fichier principal de l’application Shiny contenant à la fois l’interface utilisateur (UI) et le serveur (server).  
+- `global.R` : charge les packages nécessaires et les fonctions personnalisées.  
+- `constants.R` : définit les variables globales utilisées dans toute l’application.  
+- `data/` : dossier contenant les jeux de données bruts et nettoyés.  
+- `functions/` : contient les fonctions de traitement, de visualisation et d’analyse statistique utilisées pour le pré-traitement des données.  
+- `www/` : contient les images, icônes et autres ressources statiques.  
+- `README.md` : fichier de documentation décrivant le projet.  
 
-- `app.R` : fichier principal de l’application Shiny
-- `data/` : dossiers contenant les jeux de données
-  - **Loyers** : [Open Data - Carte des loyers 2023](https://www.data.gouv.fr/datasets/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2023/)
-  - **Accidents vélo** : fichier CSV ou GeoJSON
-- `www/` : fichiers CSS, images ou icônes
-- `utils.R` : fonctions R pour le traitement et la visualisation (optionnel)
-- `README.md` : ce fichier explicatif
+## Données
 
----
+Les données utilisées dans ce projet proviennent de différentes sources ouvertes (open data, API) :
 
-## 🖥️ Installation et lancement
+- Loyers par commune 2018-2023
+- Communes de france
+- Données socio-démographiques 2017
+- Gares ferroviaires
+- Fréquentation des gares
+- Accidents de vélo
+- API openroute service
 
-1. Installer R et RStudio.
-2. Installer les packages requis :
+## Libraries
 
-```r
-install.packages(c(
-  "shiny", "leaflet", "dplyr", "ggplot2", 
-  "scales", "DT", "stringr", "shinydashboard", "shinyWidgets"
-))
+`library(shiny)
+library(bslib)
+library(bsicons)
+library(dplyr)
+library(lubridate)
+library(stringr)
+library(leaflet)
+library(leaflet.extras)
+library(plotly)
+library(sf)
+library(tidyr)
+library(grDevices)
+library(DT)
+library(crosstalk)
+library(jsonlite)
+library(scales)
+library(RColorBrewer)
+library(FactoMineR)
+library(missMDA)`
+
+## Ré-utilisation
+
+![](www/r_logo.png)
+
+1. Installer [R](https://www.r-project.org/) et un IDE ([RStudio](https://posit.co/download/rstudio-desktop/) ou [Positron](https://positron.posit.co/))  
+2. Installer les [packages requis](#libraries).  
+3. Cloner ce dépôt Git en local.  
+4. Exécuter les fichiers `.R` du dossier `functions/` pour charger les fonctions de pré-traitement des données.  
+5. Exécuter le fichier `app.R` pour lancer l’application Shiny.
+
+## Contact
+
+- E-mail : [mathieu.boully@hotmail.com](mailto:mathieu.boully@hotmail.com)  
+- LinkedIn : [Ton profil LinkedIn](https://www.linkedin.com/in/ton-profil)  
