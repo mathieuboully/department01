@@ -70,13 +70,13 @@ Les données utilisées dans ce projet proviennent de différentes sources ouver
 
 Les pricipales librairies utilisées sont :
 
-- `shiny`
-- `bslib`
-- `dplyr`
-- `lubridate`
-- `leaflet`
-- `plotly`
-- `FactoMineR`
+- `shiny` : création d'applications web interactives.  
+- `bslib` : personnalisation du style et du thème des applications Shiny.  
+- `dplyr` : manipulation et transformation de données.  
+- `lubridate` : gestion et manipulation des dates et heures.  
+- `leaflet` : création de cartes interactives.  
+- `plotly` : visualisations graphiques interactives.  
+- `FactoMineR` : analyse factorielle et réduction de dimension pour données quantitatives et qualitatives.  
 
 ## Ré-utilisation
 
