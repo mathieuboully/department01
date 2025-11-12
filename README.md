@@ -80,8 +80,6 @@ Les pricipales librairies utilisées sont :
 
 ## Ré-utilisation
 
-![](www/r_logo.png)
-
 1. Installer [R](https://www.r-project.org/) et un IDE ([RStudio](https://posit.co/download/rstudio-desktop/) ou [Positron](https://positron.posit.co/))  
 2. Installer les [packages requis](#libraries).  
 3. Cloner ce dépôt Git en local.  
@@ -95,5 +93,5 @@ Les pricipales librairies utilisées sont :
 
 ## Contact
 
-- E-mail : [mathieu.boully@hotmail.com](mailto:mathieu.boully@hotmail.com)  
+- [mathieu.boully@hotmail.com](mailto:mathieu.boully@hotmail.com)  
 - [LinkedIn](https://www.linkedin.com/in/mathieuboully/)
