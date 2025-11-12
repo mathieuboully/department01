@@ -68,7 +68,8 @@ Les données utilisées dans ce projet proviennent de différentes sources ouver
 
 ## Libraries
 
-`library(shiny)
+```r
+library(shiny)
 library(bslib)
 library(bsicons)
 library(dplyr)
@@ -86,7 +87,8 @@ library(jsonlite)
 library(scales)
 library(RColorBrewer)
 library(FactoMineR)
-library(missMDA)`
+library(missMDA)
+```
 
 ## Ré-utilisation
 
