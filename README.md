@@ -1,10 +1,8 @@
 # Analyse du territoire de l’Ain
 
-# Projet Shiny : Analyse des loyers et mobilité dans l’Ain
-
 ## Objectif
 
-Cette application Shiny interactive permet de :
+Cette application R Shiny interactive permet de :
 
 - Explorer la **répartition des loyers** à l’échelle communale pour le trimestre 2023, selon le type de logement :
   - Maisons individuelles
@@ -12,6 +10,8 @@ Cette application Shiny interactive permet de :
 - Analyser la **mobilité et la sécurité à vélo**, notamment l’accessibilité aux gares et la localisation des accidents, en fonction de variables socio-démographiques (densité de population, revenu, âge).
 
 ---
+
+![](www/app_screen.png)
 
 ## Contenu du projet
 
