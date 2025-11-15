@@ -34,145 +34,19 @@ last_update = base::file.info(file.path("app.R"))$atime
 
 col_pal = grDevices::colorRampPalette(CONSTS$color_ramp_palette)
 
-markers <- setNames(
-  lapply(names(CONSTS$map$markers), function(name) {
-    leaflet::makeIcon(
-      iconUrl   = file.path(CONSTS$path_image, CONSTS$map$markers[[name]]$file),
-      iconWidth = CONSTS$map$markers[[name]]$width
-    )
-  }),
-  names(CONSTS$map$markers)
-)
+markers <- setNames(lapply(names(CONSTS$map$markers), function(name) {
+  leaflet::makeIcon(
+    iconUrl   = file.path(CONSTS$path_image, CONSTS$map$markers[[name]]$file),
+    iconWidth = CONSTS$map$markers[[name]]$width
+  )
+}), names(CONSTS$map$markers))
 markers = do.call(leaflet::iconList, markers)
 
-# Data
-# Accidents à vélo
-# bicycle_crash = read.csv2(
-#   file.path(path_data_raw, "accidentsVelo.csv"),
-#   header = T,
-#   sep = ",",
-#   dec = "."
-# )
-# bicycle_crash_clean = bicycle_crash %>%
-#   filter(dep %in% "01" & long != 0) %>%
-#   mutate(
-#     date = as.Date(date, format = "%Y-%m-%d"),
-#     date_clean = format(date, "%A %d %B %Y"),
-#     grav_label = case_when(
-#       grav == 1 ~ "Indemne",
-#       grav == 2 ~ "Tué",
-#       grav == 3 ~ "Blessé hospitalisé",
-#       grav == 4 ~ "Blessé léger",
-#       TRUE ~ as.character(grav)
-#     )
-#   )
-# saveRDS(bicycle_crash_clean, file = file.path(path_data_output, "bike_crash.rds"))
+# Load data
 bicycle_crash_clean = readRDS(file = file.path(CONSTS$path_data_processed, "bike_crash.rds"))
-
-# Aménagements cyclables
-# bicycle = read.csv2(
-#   file.path(path_data_raw, "amenagements-cyclables.csv"),
-#   header = T,
-#   sep = ",",
-#   dec = "."
-# )
-
-# Stations
-# stations = read.csv2(file.path(path_data_raw, "liste-des-gares.csv"),
-#                      header = T,
-#                      dec = ".")
-#
-# stations_clean = stations %>%
-#   rename(lat = Y_WGS84, lon = X_WGS84) %>%
-#   filter(DEPARTEMEN %in% c("AIN") & VOYAGEURS %in% "O") %>%
-#   distinct(CODE_UIC, .keep_all = TRUE)
-
-# Fréquentation stations
-# freq_stations = read.csv2(
-#   file.path(path_data_raw, "frequentation-gares.csv"),
-#   header = T,
-#   dec = "."
-# )
-
-# stations_clean = stations_clean %>%
-#   left_join(freq_stations, by = c("CODE_UIC" = "Code.UIC"))
-
-# saveRDS(stations_clean, file = file.path(path_data_output, "stations.rds"))
 stations_clean = readRDS(file = file.path(CONSTS$path_data_processed, "stations.rds"))
-
-# Socio
-# socio = read.csv2(
-#   file.path(path_data_raw, "Filosofi2017_carreaux_1km_met.csv"),
-#   header = T,
-#   sep = ",",
-#   dec = "."
-# )
-#
-# socio_clean = socio %>%
-#   mutate(
-#     epsg = sub(".*CRS(\\d+)RES.*", "\\1", Idcar_1km),
-#     res  = as.numeric(sub(".*RES(\\d+)m.*", "\\1", Idcar_1km)),
-#     y    = as.numeric(sub(".*N(\\d+)E.*", "\\1", Idcar_1km)),
-#     x    = as.numeric(sub(".*E(\\d+)$", "\\1", Idcar_1km))
-#   ) %>%
-#   st_as_sf(coords = c("x", "y"), crs = 3035) %>%
-#   st_transform(crs = 4326) %>%
-#   mutate(lon = st_coordinates(.)[, 1], lat = st_coordinates(.)[, 2]) %>%
-#   st_drop_geometry() %>%
-#   filter(substr(lcog_geo, 1, 2) == "01")
-#
-# saveRDS(socio_clean, file = file.path(path_data_output, "socio.rds"))
 socio_clean = readRDS(file = file.path(CONSTS$path_data_processed, "socio.rds"))
-
-# Rent
-# rent_house = read.csv2(
-#   file.path(path_data_raw, "pred-mai-mef-dhup.csv"),
-#   header = T,
-#   dec = ",",
-#   encoding = "UTF-8"
-# ) %>%
-#   filter(DEP %in% "01")
-#
-# rent_house = read.csv2(
-#   file.path(path_data_raw, "pred-mai-mef-dhup.csv"),
-#   header = T,
-#   dec = ",",
-#   encoding = "UTF-8"
-# ) %>%
-#   filter(DEP %in% "01")
-#
-# rent_app3 = read.csv2(
-#   file.path(path_data_raw, "pred-app3-mef-dhup.csv"),
-#   header = T,
-#   dec = ",",
-#   encoding = "UTF-8"
-# ) %>%
-#   filter(DEP %in% "01")
-#
-# rent_app12 = read.csv2(
-#   file.path(path_data_raw, "pred-app12-mef-dhup.csv"),
-#   header = T,
-#   dec = ",",
-#   encoding = "UTF-8"
-# ) %>%
-#   filter(DEP %in% "01")
-#
-# saveRDS(list(mai = rent_house,
-#              app3 = rent_app3,
-#              app12 = rent_app12), file = file.path(path_data_output, "rent.rds"))
 rent_ls = readRDS(file = file.path(CONSTS$path_data_processed, "rent.rds"))
-
-# Location INSEE
-# loc_insee = read.csv2(
-#   file.path(path_data_raw, "20230823-communes-departement-region.csv"),
-#   header = T,
-#   sep = ",",
-#   dec = ".",
-#   encoding = "UTF-8"
-# ) %>%
-#   filter(nom_departement %in% "Ain")
-#
-# saveRDS(loc_insee, file = file.path(path_data_output, "loc_insee.rds"))
 loc_insee = readRDS(file = file.path(CONSTS$path_data_processed, "loc_insee.rds"))
 
 ui = page_navbar(
@@ -196,9 +70,7 @@ ui = page_navbar(
     #   open = F,
     #   accordion_panel("Gares et accessibilité", icon = bsicons::bs_icon("train-front-fill"))
     # ),
-    tags$p(
-      CONSTS$ui$sidebar_desc
-    ),
+    tags$p(CONSTS$ui$sidebar_desc),
     tags$a(
       tags$img(
         src = CONSTS$ui$sidebar_logo,
@@ -210,7 +82,8 @@ ui = page_navbar(
     ),
     tags$sub(paste(
       "Mis à jour le", format(last_update, "%d %B %Y")
-    ))
+    )),
+    tags$sub(paste("Version", CONSTS$ui$app_version))
   ),
   nav_spacer(),
   nav_panel(
@@ -298,11 +171,30 @@ ui = page_navbar(
           )
         ))
       ),
+      card(full_screen = TRUE, 
+           layout_sidebar(
+             fillable = TRUE,
+             border = T,
+             sidebar = sidebar(
+               position = "right",
+               width = 300,
+               open = T,
+               selectInput(
+                 inputId = "grav_select",
+                 label = "Gravité",
+                 c(
+                   unique(bicycle_crash_clean$grav_label)
+                 ),
+                 multiple = T,
+                 selected = unique(bicycle_crash_clean$grav_label)
+               )
+             ),
+           plotly::plotlyOutput("season_plot_crash"))),
       card(full_screen = TRUE, plotly::plotlyOutput("famd_ind_bc")),
       card(dataTableOutput("table_crash"), card_footer(
         tags$h5('Jours de la semaine les plus à risque')
       )),
-      col_widths = c(12, 12)
+      col_widths = c(6, 6, 12, 12)
     )
   ),
   nav_panel(
@@ -404,17 +296,9 @@ L’Ain constitue un territoire à la fois naturellement préservé et économiq
         ),
         hr(),
         h3("Contact"),
-        tags$ul(
-          lapply(contacts, function(contact) {
-            tags$li(
-              tags$a(
-                href = contact$href,
-                target = "_blank",
-                contact$name
-              )
-            )
-          })
-        ),
+        tags$ul(lapply(contacts, function(contact) {
+          tags$li(tags$a(href = contact$href, target = "_blank", contact$name))
+        })),
         hr(),
         h3("Télécharger les données brutes"),
         downloadButton("download_station", tooltip(
@@ -436,13 +320,29 @@ L’Ain constitue un territoire à la fois naturellement préservé et économiq
   #   )
   # ),
   footer = tags$sub(
-    paste0(CONSTS$footer$year$text), CONSTS$footer$text_sep,
-    tags$a(href = CONSTS$footer$author$url, CONSTS$footer$author$text), CONSTS$footer$text_sep,
-    "Cette application a été créée avec ", 
-    tags$a(href = CONSTS$footer$build_wth$url, CONSTS$footer$build_wth$text, target = "_blank"), CONSTS$footer$text_sep,
-    tags$a(href = CONSTS$footer$github$url, CONSTS$footer$github$text, target = "_blank"), CONSTS$footer$text_sep,
+    paste0(CONSTS$footer$year$text),
+    CONSTS$footer$text_sep,
+    tags$a(href = CONSTS$footer$author$url, CONSTS$footer$author$text),
+    CONSTS$footer$text_sep,
+    "Cette application a été créée avec ",
+    tags$a(
+      href = CONSTS$footer$build_wth$url,
+      CONSTS$footer$build_wth$text,
+      target = "_blank"
+    ),
+    CONSTS$footer$text_sep,
+    tags$a(
+      href = CONSTS$footer$github$url,
+      CONSTS$footer$github$text,
+      target = "_blank"
+    ),
+    CONSTS$footer$text_sep,
     "Licence ",
-    tags$a(href = CONSTS$footer$license$url, CONSTS$footer$license$text, target = "_blank")
+    tags$a(
+      href = CONSTS$footer$license$url,
+      CONSTS$footer$license$text,
+      target = "_blank"
+    )
   )
 )
 
@@ -465,13 +365,25 @@ server = function(input, output, session) {
   
   selected_iso = reactive({
     if (input$iso_select %in% "10 minutes à vélo")
-      iso_station = readRDS(file = file.path(CONSTS$path_data_processed, "isochrone_station_bike_600.rds"))
+      iso_station = readRDS(file = file.path(
+        CONSTS$path_data_processed,
+        "isochrone_station_bike_600.rds"
+      ))
     else if (input$iso_select %in% "20 minutes à vélo") {
-      iso_station = readRDS(file = file.path(CONSTS$path_data_processed, "isochrone_station_bike_1200.rds"))
+      iso_station = readRDS(file = file.path(
+        CONSTS$path_data_processed,
+        "isochrone_station_bike_1200.rds"
+      ))
     } else if (input$iso_select %in% "10 minutes en voiture") {
-      iso_station = readRDS(file = file.path(CONSTS$path_data_processed, "isochrone_station_car_600.rds"))
+      iso_station = readRDS(file = file.path(
+        CONSTS$path_data_processed,
+        "isochrone_station_car_600.rds"
+      ))
     } else if (input$iso_select %in% "20 minutes en voiture") {
-      iso_station = readRDS(file = file.path(CONSTS$path_data_processed, "isochrone_station_car_1200.rds"))
+      iso_station = readRDS(file = file.path(
+        CONSTS$path_data_processed,
+        "isochrone_station_car_1200.rds"
+      ))
     } else {
       return(NULL)
     }
@@ -480,7 +392,6 @@ server = function(input, output, session) {
   })
   
   output$mobility_map = renderLeaflet({
-    
     center_lng <- mean(CONSTS$map$center$lng)
     center_lat <- mean(CONSTS$map$center$lat)
     
@@ -488,19 +399,13 @@ server = function(input, output, session) {
       minZoom = CONSTS$map$zoom$min,
       maxZoom = CONSTS$map$zoom$max
     )) %>%
-      addProviderTiles(
-        providers[[CONSTS$map$tiles$base$provider]],
-        options = providerTileOptions(opacity = CONSTS$map$tiles$base$opacity)
-      ) %>%
-      addProviderTiles(
-        providers[[CONSTS$map$tiles$overlay$provider]],
-        options = providerTileOptions(opacity = CONSTS$map$tiles$overlay$opacity)
-      ) %>%
-      setView(
-        lng = center_lng,
-        lat = center_lat,
-        zoom = CONSTS$map$zoom$default
-      ) %>%
+      addProviderTiles(providers[[CONSTS$map$tiles$base$provider]],
+                       options = providerTileOptions(opacity = CONSTS$map$tiles$base$opacity)) %>%
+      addProviderTiles(providers[[CONSTS$map$tiles$overlay$provider]],
+                       options = providerTileOptions(opacity = CONSTS$map$tiles$overlay$opacity)) %>%
+      setView(lng = center_lng,
+              lat = center_lat,
+              zoom = CONSTS$map$zoom$default) %>%
       setMaxBounds(
         lng1 = CONSTS$map$bounds$lng1,
         lat1 = CONSTS$map$bounds$lat1,
@@ -1027,6 +932,87 @@ server = function(input, output, session) {
     
     fig
   })
+  
+  output$season_plot_crash = renderPlotly({
+    df = selected_bicycle_crash() %>%
+      mutate(
+        date = as.Date(date),
+        year = year(date),
+        month = month(date, label = TRUE, abbr = TRUE)
+      )
+    
+    df_monthly <- df %>%
+      group_by(month) %>%
+      summarise(crash = n()) %>%
+      arrange(month)
+    
+    plot_ly(
+      df_monthly,
+      x = ~ month,
+      y = ~ crash,
+      type = 'scatter',
+      mode = 'lines+markers',
+      line = list(shape = "spline"),
+      hovertemplate = paste(
+        "%{yaxis.title.text}: ",
+        label_number(big.mark = " ", decimal.mark = ",")(df_monthly$crash),
+        "<br>",
+        "%{xaxis.title.text}: %{x}<br>",
+        "<extra></extra>"
+      )
+    ) %>%
+      layout(
+        font = list(size = 12),
+        title = list(text = "<b>Saisonnalité des accidents", font = list(
+          size = 15, color = "grey"
+        )),
+        xaxis = list(
+          title = "Mois",
+          zeroline = F,
+          zerolinecolor = 'black',
+          zerolinewidth = 2,
+          showgrid = T,
+          showticklabels = TRUE,
+          fixedrange = F,
+          color = "grey",
+          tickfont = list(color = "grey")
+        ),
+        yaxis = list(
+          title = "Nombre d'accidents",
+          zeroline = F,
+          zerolinecolor = 'black',
+          zerolinewidth = 2,
+          showgrid = F,
+          showticklabels = TRUE,
+          fixedrange = F,
+          color = "grey",
+          tickfont = list(color = "grey")
+        ),
+        hoverlabel = list(font = list(color = "black")),
+        showlegend = F,
+        margin = list(
+          t = 40,
+          b = 40,
+          l = 40,
+          r = 40
+        )
+      )
+  })
+  
+  selected_bicycle_crash = reactive({
+    req(input$grav_select)
+    
+    all_values <- unique(bicycle_crash_clean$grav_label)
+    
+    if (setequal(input$grav_select, all_values)) {
+      return(bicycle_crash_clean)
+    }
+    
+    df = bicycle_crash_clean %>% 
+      filter(grav_label %in% input$grav_select)
+    return(df)
+  })
+  
 }
 
 # Launching app

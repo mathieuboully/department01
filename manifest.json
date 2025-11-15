@@ -4952,46 +4952,16 @@
       "checksum": "2c55f6a6f08faec61b587a892674651f"
     },
     "app.R": {
-      "checksum": "158caa6a69876925a963e7b72e3cad0d"
+      "checksum": "b6b44fe8c8f9dd396fa0ef6306420278"
     },
     "config/.gitkeep": {
       "checksum": "d41d8cd98f00b204e9800998ecf8427e"
     },
     "config/constants.R": {
-      "checksum": "21f90c15b0385ac9b455e9be1a154ed3"
+      "checksum": "08ea24f07c054aa7fefba1f5501ade27"
     },
     "data/.gitkeep": {
       "checksum": "d41d8cd98f00b204e9800998ecf8427e"
-    },
-    "data/output/.gitkeep": {
-      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
-    },
-    "data/output/bike_crash.rds": {
-      "checksum": "7988fd368c99fa1e65b981db995d5746"
-    },
-    "data/output/isochrone_station_bike_1200.rds": {
-      "checksum": "c8f87be48b853e3d8ff36386790da6fd"
-    },
-    "data/output/isochrone_station_bike_600.rds": {
-      "checksum": "9d4ea7116c8e42cea73b67bed91528f6"
-    },
-    "data/output/isochrone_station_car_1200.rds": {
-      "checksum": "37da738549c646d82cefd1f76cdae70e"
-    },
-    "data/output/isochrone_station_car_600.rds": {
-      "checksum": "d782dc4e901093524ce87839132cd9b5"
-    },
-    "data/output/loc_insee.rds": {
-      "checksum": "252087b44276236802c3de4fc18ef27c"
-    },
-    "data/output/rent.rds": {
-      "checksum": "2f9be4d3f3419ade8d608585089d18db"
-    },
-    "data/output/socio.rds": {
-      "checksum": "ccac648fb08eaabf97f978b7118e211c"
-    },
-    "data/output/stations.rds": {
-      "checksum": "0820f5230ec4d55386a6eaa1477fa071"
     },
     "data/processed/.gitkeep": {
       "checksum": "d41d8cd98f00b204e9800998ecf8427e"
@@ -5065,26 +5035,35 @@
     "functions/global_functions.R": {
       "checksum": "a15090519118403d66e2d175c5a03449"
     },
-    "functions/isochrone_station.R": {
-      "checksum": "d7466b0c258a0bacebcfb05f55d2c309"
-    },
     "global.R": {
-      "checksum": "dd2a34e57d945acdbc402d0f3bcc8039"
+      "checksum": "bcc78c757e31d60184b3dbff0a9ac140"
     },
     "modules/.gitkeep": {
       "checksum": "d41d8cd98f00b204e9800998ecf8427e"
     },
     "README.md": {
-      "checksum": "d120c2ed69aa8cac55a25976770a8913"
+      "checksum": "4beb9e7da716f33c21f936af75ca3219"
     },
-    "scripts/preprocess_bicycle_crash.R": {
-      "checksum": "bbac7b7b988382e2527c76d4547dd0b2"
+    "scripts/isochrone_station.R": {
+      "checksum": "d7466b0c258a0bacebcfb05f55d2c309"
+    },
+    "scripts/preprocess.R": {
+      "checksum": "870d5a46fdb329776a793ae61aa8cb83"
     },
     "www/.gitkeep": {
       "checksum": "d41d8cd98f00b204e9800998ecf8427e"
     },
     "www/01011032.jpg": {
       "checksum": "3742b083a1f65bd2bff9bb531b234573"
+    },
+    "www/app_map_rent.png": {
+      "checksum": "feb987a616c30e7244a670d595279e3c"
+    },
+    "www/app_plot_bicycle.png": {
+      "checksum": "379fd1b1f55d478eac5c29fcc254856f"
+    },
+    "www/app_plot_top10.png": {
+      "checksum": "1689c714b918256efc0823caddff1d12"
     },
     "www/app_screen.png": {
       "checksum": "1c69ebd2bbb96f744fa7b7947a86025a"
@@ -5094,6 +5073,9 @@
     },
     "www/logo_sncf.png": {
       "checksum": "2b5058a43db27fef655a12ebf9a54c3f"
+    },
+    "www/r_logo.png": {
+      "checksum": "909182496548f832840b6c43ef4fb5f7"
     }
   },
   "users": null
