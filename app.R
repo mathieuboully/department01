@@ -301,6 +301,18 @@ L’Ain constitue un territoire à la fois naturellement préservé et économiq
         })),
         hr(),
         h3("Télécharger les données brutes"),
+        downloadButton("download_socio", tooltip(
+          "Démographie",
+          HTML("Format .csv avec séparateur ';' et décimal '.'")
+        )),
+        tags$br(),
+        tags$br(),
+        downloadButton("download_crash", tooltip(
+          "Accidents de vélo",
+          HTML("Format .csv avec séparateur ';' et décimal '.'")
+        )),
+        tags$br(),
+        tags$br(),
         downloadButton("download_station", tooltip(
           "Gares ferroviaires",
           HTML("Format .csv avec séparateur ';' et décimal '.'")
@@ -354,6 +366,38 @@ server = function(input, output, session) {
     content = function(file) {
       write.csv(
         stations_clean,
+        file,
+        row.names = FALSE,
+        sep = ";",
+        dec = ".",
+        fileEncoding = "UTF-8"
+      )
+    }
+  )
+  
+  output$download_socio <- downloadHandler(
+    filename = function() {
+      paste("socio_", format(Sys.Date(), "%Y%m%d"), ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(
+        socio_clean,
+        file,
+        row.names = FALSE,
+        sep = ";",
+        dec = ".",
+        fileEncoding = "UTF-8"
+      )
+    }
+  )
+  
+  output$download_crash <- downloadHandler(
+    filename = function() {
+      paste("bicycle_crash_", format(Sys.Date(), "%Y%m%d"), ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(
+        bicycle_crash_clean,
         file,
         row.names = FALSE,
         sep = ";",
