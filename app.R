@@ -349,7 +349,6 @@ L’Ain constitue un territoire à la fois naturellement préservé et économiq
       target = "_blank"
     ),
     CONSTS$footer$text_sep,
-    "Licence ",
     tags$a(
       href = CONSTS$footer$license$url,
       CONSTS$footer$license$text,
@@ -996,6 +995,7 @@ server = function(input, output, session) {
       y = ~ crash,
       type = 'scatter',
       mode = 'lines+markers',
+      color = CONSTS$theme$primary,
       line = list(shape = "spline"),
       hovertemplate = paste(
         "%{yaxis.title.text}: ",
