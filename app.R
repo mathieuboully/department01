@@ -996,7 +996,12 @@ server = function(input, output, session) {
       type = 'scatter',
       mode = 'lines+markers',
       color = CONSTS$theme$primary,
-      line = list(shape = "spline"),
+      line = list(shape = "spline",
+                  color = CONSTS$theme$primary),
+      marker = list(
+        color = CONSTS$theme$primary,
+        size = 8
+      ),
       hovertemplate = paste(
         "%{yaxis.title.text}: ",
         label_number(big.mark = " ", decimal.mark = ",")(df_monthly$crash),
@@ -1032,7 +1037,7 @@ server = function(input, output, session) {
           color = "grey",
           tickfont = list(color = "grey")
         ),
-        hoverlabel = list(font = list(color = "black")),
+        hoverlabel = list(font = list(color = CONSTS$theme$bg)),
         showlegend = F,
         margin = list(
           t = 40,

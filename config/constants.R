@@ -172,32 +172,7 @@ CONSTS = list(
     "users_dropped_out",
     "complaints_opened",
     "complaints_closed"
-  ),
-  
-  prev_time_range_choices <- list("Previous Year" = "prev_year", "Previous Month" = "prev_month"),
-  
-  appsilonLogo <- HTML(
-    "
-  <svg class='logo-svg' viewBox='0 0 660.52 262.96'>
-    <use href='assets/icons/icons-sprite-map.svg#appsilon-logo'></use>
-  </svg>
-"
-  ),
-  
-  shinyLogo <- HTML(
-    "
-  <svg class='logo-svg' viewBox='0 0 100 68'>
-    <use href='assets/icons/icons-sprite-map.svg#shiny-logo'></use>
-  </svg>
-"
-  ),
-  
-  colors <- list(
-    white = "#FFF",
-    black = "#0a1e2b",
-    primary = "#0099F9",
-    secondary = "#15354A",
-    ash = "#B3B8BA",
-    ash_light = "#e3e7e9"
   )
+  
+
 )
